@@ -31,7 +31,7 @@ tb._SYMBOLIC_SCOPE.value = True
 # config = {'user': 'root',
 #         'password': '',
 #         'host': 'localhost', 
-#         'db': 'fitfood_v5'}
+#         'db': 'fitfood_v52'}
         
 config = {'user': 'wdj2-user',
             'password': 'wdj2-Fitfood', 
@@ -114,6 +114,8 @@ def getMealLists(user_id):
     mealKindList = str(formData['kind']).split(',')
     # mealKindList = [0, 1, 1]
     # mealKindList = [0, 1]
+    # mealKindList = [0]
+    # mealKindList = [1]
     for i in range(len(mealKindList)):
         mealKindList[i] = int(mealKindList[i])
     todayEatNum = len(mealKindList)
@@ -151,7 +153,7 @@ def getMealLists(user_id):
     if len(set(tuple(mealKindList))) == 1:
         if mealKindList[0] == 0:
             AllMealList = combinations(foodIdList, todayEatNum)
-        elif mealKindList[1] == 1:  
+        elif mealKindList[0] == 1:  
             AllMealList = combinations(recipeIdList, todayEatNum)
     elif len(mealKindList) == 3:
         storekindChekNum = 0
@@ -222,6 +224,33 @@ def getMealLists(user_id):
     goodDan = [rightCal/4 * 0.07, rightCal/4 * 0.2]
     goodJi = [rightCal/9 * 0.15, rightCal/9 * 0.3]
 
+    foodeaten_select_query = 'select nutrient_carbohydrate, nutrient_protein, nutrient_fat  from foodeatens join nutrients  on foodeatens.food_id = nutrients.food_id where user_id = 1 and eaten_start > date_add(now(),interval -7 day)'
+    cur.execute(foodeaten_select_query)
+    data = cur.fetchall()
+    # print(len(data))
+    if len(data) > 0:
+        tan = 0
+        dan = 0
+        ji = 0
+        for i in data:
+            tan += i[0]
+            dan += i[1]
+            ji += i[2]
+        # print(tan / (len(data)/3))
+        # print(dan / (len(data)/3))
+        # print(ji / (len(data)/3))
+        # 단백질 7~20% 4
+        # 탄수화물 55~65% 4
+        # 지방 15~30% 9 
+
+        # beta = 999 if alpha > 7 else (beta == 99 if alpha == 7 else 0)
+        tanFailChecker = -1 if tan < goodTan[0] / (len(data)/3) else (1 if  goodTan[1] < tan / (len(data)/3) else 0) 
+        danFailChecker = -1 if dan < goodDan[0] / (len(data)/3) else (1 if  goodDan[1] < dan / (len(data)/3) else 0) 
+        jiFailChecker = -1 if ji < goodJi[0] / (len(data)/3) else (1 if  goodJi[1] < ji / (len(data)/3) else 0) 
+        FailCheckes = [ tanFailChecker, danFailChecker, jiFailChecker]
+    else:
+        FailCheckes = [ 0, 0, 0 ]
+
     for i in range(3 - todayEatNum):
         print(str(eatenList[i][0]))
         nutrient_select_query = select_str('nutrients',
@@ -280,15 +309,48 @@ def getMealLists(user_id):
         eatBigcheckDan = dan - goodDan[1] 
         eatSmallcheckJi = ji - goodJi[0]
         eatBigcheckJi = ji - goodJi[1]
+        failNutrientScores = []
         if eatSmallcheckTan > 0 and eatBigcheckTan < 0:
-                if eatSmallcheckDan > 0 and eatBigcheckDan < 0:
-                    if eatSmallcheckJi > 0 and eatBigcheckJi < 0:
+            if eatSmallcheckDan > 0 and eatBigcheckDan < 0:
+                if eatSmallcheckJi > 0 and eatBigcheckJi < 0:
+                    if -1 in FailCheckes or 1 in FailCheckes:
+                        nutrientBigSmallChecks = [[eatSmallcheckTan, eatBigcheckTan], [eatSmallcheckDan, eatBigcheckDan ], [eatSmallcheckJi, eatBigcheckJi] ]
+                        for index in range(len(FailCheckes)):
+                            if FailCheckes[index] == -1:
+                                failNutrientScores.append(nutrientBigSmallChecks[index][0])
+                            elif FailCheckes[index] == 1:
+                                failNutrientScores.append(nutrientBigSmallChecks[index][1])
+                            else:
+                                failNutrientScores.append(0)
+                        failscore = 0 
+                        FailScore = failNutrientScores[0] * 4 + failNutrientScores[1] * 4 + failNutrientScores[2] * 9
+                        FailAbsScore = abs((failNutrientScores[0] * failNutrientScores[0] * 4 * 4 + failNutrientScores[1] * failNutrientScores[1] * 4 * 4 + failNutrientScores[2] * failNutrientScores[2] * 9 * 9) / (16 * 16 * 81))
+                        RightMealList.append([foodIdList, foodNameList, foodImgList, FailAbsScore])
+                    else:
                         RightMealList.append([foodIdList, foodNameList, foodImgList])
 
     randomMeal = []
     resultIdList= []
-    for i in range(5):
-        randomMeal.append(random.choice(RightMealList))
+
+    if -1 in FailCheckes or 1 in FailCheckes:
+        RightMealList = sorted(RightMealList, key = lambda x : x[3])
+        equalCheckList = []
+        index = 0
+        loopChecker = True
+        while loopChecker:
+            if index == 0:
+                equalCheckList.append(RightMealList[index][1])
+                randomMeal.append(RightMealList[index])
+            else:
+                if not RightMealList[index][1] in equalCheckList:
+                    equalCheckList.append(RightMealList[index][1])
+                    randomMeal.append(RightMealList[index])
+            if len(randomMeal) == 5 or len(RightMealList) == index:
+                loopChecker = False
+            index += 1
+    else:
+        for i in range(5):
+            randomMeal.append(random.choice(RightMealList))
     # print(randomMeal)
 
     todayMeal = []
@@ -302,9 +364,11 @@ def getMealLists(user_id):
                 cur.execute(store_id_select_query)
                 store_id = cur.fetchall()[0][0]
                 # img_link = os.path.abspath('./images2/' + str(store_id) + '/' + str(i[1][j]) + '/' + '0.png')
+
                 img_link = get_image('images2/'+str(store_id)+'/'+i[1][j]+'/0.png')
                 resultList.append({'id': i[0][j], 'recommend_name' : i[1][j],
                     'image' : 'data:image/png;base64,'+img_link , 'store_id': store_id})
+
                 # img_link = get_image('images2/'+str(store_id)+'/'+i[1][j]+'/0.png')
                 # img_link = 'data:image/png;base64,'+img_link
                 # resultList.append({'id': i[0][j], 'recommend_name' : i[1][j],
@@ -320,8 +384,27 @@ def getMealLists(user_id):
                 resultList.append({'id': i[0][j], 'recommend_name' : i[1][j],
                         'image' : i[2][j] , 'store_id' : str(-1) })
         todayMeal.append(resultList)
+    
+    if -1 in FailCheckes or 1 in FailCheckes:
+        mealInfoStr = "저번주 "
+        nutrientIndex = ['탄수화물', '단백질', '지방']
+        for i in range(len(FailCheckes)):
+            if FailCheckes[i] == 1:
+                mealInfoStr += nutrientIndex[i]+'을 많이 '
+            elif FailCheckes[i] == -1:
+                mealInfoStr += nutrientIndex[i]+'을 적게 '
+        mealInfoStr += '섭취한 당신에 추천드리는 '
 
-    result = {"recommendMeals" : todayMeal }
+        for i in range(len(FailCheckes)):
+            if FailCheckes[i] == 1:
+                mealInfoStr += '저'+nutrientIndex[i]+' '
+            elif FailCheckes[i] == -1:
+                mealInfoStr += '고'+nutrientIndex[i]+' '
+        mealInfoStr += '식단'
+        # print(mealInfoStr)
+        result = {"recommendMeals" : todayMeal , "mealInfo": mealInfoStr}
+    else:
+        result = {"recommendMeals" : todayMeal}
     
     # print(todayMeal)
     return jsonify(result);
@@ -456,4 +539,4 @@ def select_str(table, colums, values):
 
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0",port=5000)
+    app.run()
