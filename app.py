@@ -57,14 +57,14 @@ def get_image(image_path):
 @app.route('/test', methods=['POST'])
 def getCal():
     # tb._SYMBOLIC_SCOPE.value = True
-    str_img = request.form['img']
-    image = base64.b64decode(str_img)
-    img = Image.open(BytesIO(image)) 
+    # str_img = request.form['img']
+    # image = base64.b64decode(str_img)
+    # img = Image.open(BytesIO(image)) 
 
     resNum = request.form['resNum']
 
-    # str_img = request.files['img']
-    # img = Image.open(str_img)
+    str_img = request.files['img']
+    img = Image.open(str_img)
 
     # print(str_img)
     tb._SYMBOLIC_SCOPE.value = True 
@@ -539,4 +539,4 @@ def select_str(table, colums, values):
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0',port=5000)
