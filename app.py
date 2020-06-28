@@ -57,12 +57,15 @@ def get_image(image_path):
 @app.route('/test', methods=['POST'])
 def getCal():
     # tb._SYMBOLIC_SCOPE.value = True
+
+    #아래 세줄 base64로 이미지 받을때
     str_img = request.form['img']
     image = base64.b64decode(str_img)
     img = Image.open(BytesIO(image)) 
 
     resNum = request.form['resNum']
 
+    #아래 두줄 파일로 이미지 받을 때
     # str_img = request.files['img']
     # img = Image.open(str_img)
 
@@ -267,6 +270,9 @@ def getMealLists(user_id):
         goodJi[1] -= float(eattedNutrientInfo[2])
 
     RightMealList = []
+    testMealList1 = []
+    testMealList2 = []
+
     for i in AllMealList:
         tan = 0
         dan = 0
@@ -313,6 +319,10 @@ def getMealLists(user_id):
         if eatSmallcheckTan > 0 and eatBigcheckTan < 0:
             if eatSmallcheckDan > 0 and eatBigcheckDan < 0:
                 if eatSmallcheckJi > 0 and eatBigcheckJi < 0:
+                    if 329 in foodIdList:
+                        testMealList1.append([foodIdList, foodNameList, foodImgList])
+                    if 50 in foodIdList:
+                        testMealList2.append([foodIdList, foodNameList, foodImgList])
                     if -1 in FailCheckes or 1 in FailCheckes:
                         nutrientBigSmallChecks = [[eatSmallcheckTan, eatBigcheckTan], [eatSmallcheckDan, eatBigcheckDan ], [eatSmallcheckJi, eatBigcheckJi] ]
                         for index in range(len(FailCheckes)):
@@ -352,8 +362,16 @@ def getMealLists(user_id):
         for i in range(5):
             randomMeal.append(random.choice(RightMealList))
     # print(randomMeal)
+    print(testMealList1)
+    print('--------------------------')
+    print(testMealList2)
 
     todayMeal = []
+    if len(testMealList1) > 0:
+        randomMeal[0] = testMealList1[0]
+    if len(testMealList2) > 0:
+        randomMeal[1] = testMealList2[0]
+
     for i in randomMeal:
         resultList = []
         for j in range(todayEatNum):
@@ -363,7 +381,6 @@ def getMealLists(user_id):
                                         {'food_id': str(i[0][j])})
                 cur.execute(store_id_select_query)
                 store_id = cur.fetchall()[0][0]
-                # img_link = os.path.abspath('./images2/' + str(store_id) + '/' + str(i[1][j]) + '/' + '0.png')
 
                 img_link = get_image('images2/'+str(store_id)+'/'+i[1][j]+'/0.png')
                 resultList.append({'id': i[0][j], 'recommend_name' : i[1][j],
@@ -371,8 +388,11 @@ def getMealLists(user_id):
 
                 # img_link = get_image('images2/'+str(store_id)+'/'+i[1][j]+'/0.png')
                 # img_link = 'data:image/png;base64,'+img_link
+
+                # img_link = os.path.abspath('./images2/' + str(store_id) + '/' + str(i[1][j]) + '/' + '0.png')
                 # resultList.append({'id': i[0][j], 'recommend_name' : i[1][j],
                 #     'image' : img_link , 'store_id': store_id})
+
                 # get_image('images2/'+str(store_id)+'/'+i[1][j]+'/0.png')
                 # with open('images2/'+str(store_id)+'/'+i[1][j]+'/0.png', 'rb') as f:
                 #     base64_img = base64.b64encode(f.read())
@@ -539,4 +559,4 @@ def select_str(table, colums, values):
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0',port=5000)
+    app.run()
