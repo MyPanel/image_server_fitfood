@@ -404,7 +404,7 @@ def getMealLists(user_id):
                 if equalChecker:
                     equalCheckList.append(RightMealList[randomNum][1])
                     randomMeal.append(RightMealList[randomNum])
-            if len(randomMeal) == 5 or len(RightMealList) == 1000:
+            if len(randomMeal) == 5 or len(RightMealList) == 10000:
                 loopChecker = False
             index += 1
         # for i in range(5):
