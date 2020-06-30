@@ -320,7 +320,7 @@ def getMealLists(user_id):
                 if eatSmallcheckJi > 0 and eatBigcheckJi < 0:
                     if 329 in foodIdList:
                         testMealList1.append([foodIdList, foodNameList, foodImgList])
-                    if 50 in foodIdList:
+                    if '13' in foodIdList:
                         testMealList2.append([foodIdList, foodNameList, foodImgList])
                     if -1 in FailCheckes or 1 in FailCheckes:
                         nutrientBigSmallChecks = [[eatSmallcheckTan, eatBigcheckTan], [eatSmallcheckDan, eatBigcheckDan ], [eatSmallcheckJi, eatBigcheckJi] ]
@@ -340,6 +340,8 @@ def getMealLists(user_id):
 
     randomMeal = []
     resultIdList= []
+    # print(RightMealList)
+    print('======================')
 
     if -1 in FailCheckes or 1 in FailCheckes:
         RightMealList = sorted(RightMealList, key = lambda x : x[3])
@@ -347,29 +349,61 @@ def getMealLists(user_id):
         index = 0
         loopChecker = True
         while loopChecker:
+            equalChecker = False
             if index == 0:
                 equalCheckList.append(RightMealList[index][1])
                 randomMeal.append(RightMealList[index])
             else:
-                if not RightMealList[index][1] in equalCheckList:
+                for i in equalCheckList:
+                    for k in RightMealList[index][1]:
+                        if k in i:
+                            equalChecker = False
+                            break
+                        else:
+                            equalChecker = True
+                if equalChecker:
                     equalCheckList.append(RightMealList[index][1])
                     randomMeal.append(RightMealList[index])
             if len(randomMeal) == 5 or len(RightMealList) == index:
                 loopChecker = False
             index += 1
     else:
-        for i in range(5):
-            randomMeal.append(random.choice(RightMealList))
-    # print(randomMeal)
-    print(testMealList1)
-    print('--------------------------')
-    print(testMealList2)
+        equalCheckList = []
+        index = 0
+        loopChecker = True
+        while loopChecker:
+            equalChecker = False
+            randomNum = random.randrange(0, len(RightMealList))
+            if index == 0:
+                equalCheckList.append(RightMealList[randomNum][1])
+                randomMeal.append(RightMealList[randomNum])
+            else:
+                for i in equalCheckList:
+                    for k in RightMealList[randomNum][1]:
+                        if k in i:
+                            equalChecker = False
+                            break
+                        else:
+                            equalChecker = True
+                if equalChecker:
+                    equalCheckList.append(RightMealList[randomNum][1])
+                    randomMeal.append(RightMealList[randomNum])
+            if len(randomMeal) == 5 or len(RightMealList) == 1000:
+                loopChecker = False
+            index += 1
+        # for i in range(5):
+        #     randomMeal.append(random.choice(RightMealList))
 
     todayMeal = []
     if len(testMealList1) > 0:
         randomMeal[0] = testMealList1[0]
     if len(testMealList2) > 0:
         randomMeal[1] = testMealList2[0]
+    else:
+        randomMeal[1][0][0] = 13
+        randomMeal[1][1][0] = '콩국수'
+        randomMeal[1][2][0] = -1
+        
 
     for i in randomMeal:
         resultList = []
@@ -420,7 +454,7 @@ def getMealLists(user_id):
             elif FailCheckes[i] == -1:
                 mealInfoStr += '고'+nutrientIndex[i]+' '
         mealInfoStr += '식단'
-        # print(mealInfoStr)
+        print(mealInfoStr)
         result = {"recommendMeals" : todayMeal , "mealInfo": mealInfoStr}
     else:
         result = {"recommendMeals" : todayMeal}
