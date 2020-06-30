@@ -434,16 +434,16 @@ def getMealLists(user_id):
                 cur.execute(store_id_select_query)
                 store_id = cur.fetchall()[0][0]
 
-                # img_link = get_image('images2/'+str(store_id)+'/'+i[1][j]+'/0.png')
-                # resultList.append({'id': i[0][j], 'recommend_name' : i[1][j],
-                #     'image' : 'data:image/png;base64,'+img_link , 'store_id': store_id})
+                img_link = get_image('images2/'+str(store_id)+'/'+i[1][j]+'/0.png')
+                resultList.append({'id': i[0][j], 'recommend_name' : i[1][j],
+                    'image' : 'data:image/png;base64,'+img_link , 'store_id': store_id})
 
                 # img_link = get_image('images2/'+str(store_id)+'/'+i[1][j]+'/0.png')
                 # img_link = 'data:image/png;base64,'+img_link
 
-                img_link = os.path.abspath('./images2/' + str(store_id) + '/' + str(i[1][j]) + '/' + '0.png')
-                resultList.append({'id': i[0][j], 'recommend_name' : i[1][j],
-                    'image' : img_link , 'store_id': store_id})
+                # img_link = os.path.abspath('./images2/' + str(store_id) + '/' + str(i[1][j]) + '/' + '0.png')
+                # resultList.append({'id': i[0][j], 'recommend_name' : i[1][j],
+                #     'image' : img_link , 'store_id': store_id})
 
                 # get_image('images2/'+str(store_id)+'/'+i[1][j]+'/0.png')
                 # with open('images2/'+str(store_id)+'/'+i[1][j]+'/0.png', 'rb') as f:
