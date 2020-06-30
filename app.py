@@ -218,8 +218,8 @@ def getMealLists(user_id):
     userInfo = cur.fetchall()[0]
     rightCal = (userInfo[0] - 100) * 0.9 * 32
     rightCal = (170 - 100) * 0.9 * 25
-    # 단백질 7~20% 4
     # 탄수화물 55~65% 4
+    # 단백질 7~20% 4
     # 지방 15~30% 9 
 
     goodTan = [rightCal/4 * 0.55, rightCal/4 * 0.65]
@@ -238,17 +238,33 @@ def getMealLists(user_id):
             tan += i[0]
             dan += i[1]
             ji += i[2]
-        # print(tan / (len(data)/3))
-        # print(dan / (len(data)/3))
-        # print(ji / (len(data)/3))
-        # 단백질 7~20% 4
-        # 탄수화물 55~65% 4
-        # 지방 15~30% 9 
 
-        # beta = 999 if alpha > 7 else (beta == 99 if alpha == 7 else 0)
-        tanFailChecker = -1 if tan < goodTan[0] / (len(data)/3) else (1 if  goodTan[1] < tan / (len(data)/3) else 0) 
-        danFailChecker = -1 if dan < goodDan[0] / (len(data)/3) else (1 if  goodDan[1] < dan / (len(data)/3) else 0) 
-        jiFailChecker = -1 if ji < goodJi[0] / (len(data)/3) else (1 if  goodJi[1] < ji / (len(data)/3) else 0) 
+        # print(goodTan[0])
+        # print(tan / (len(data)/3))
+        # print(goodTan[1])
+        # print('==============')
+        # print(goodDan[0])
+        # print(dan / (len(data)/3))
+        # print(goodDan[1])
+        # print('==============')
+        # print(goodJi[0])
+        # print(ji / (len(data)/3))
+        # print(goodJi[1])
+
+        # 탄수화물 55~65% 4 tan / (len(data)/3)
+        # 단백질 7~20% 4 dan / (len(data)/3)
+        # 지방 15~30% 9 ji / (len(data)/3)
+        eatnutrients = (tan / (len(data)/3) * 4) + (dan / (len(data)/3) * 4) + (ji / (len(data)/3) * 9)
+        # tanFailChecker = 0.55 < (tan / (len(data)/3) * 4) / eatnutrients
+        tanFailChecker = -1 if (tan / (len(data)/3) * 4) / eatnutrients < 0.55 else (1 if 0.65 < (tan / (len(data)/3) * 4) / eatnutrients else 0) 
+        danFailChecker = -1 if (dan / (len(data)/3) * 4) / eatnutrients < 0.07 else (1 if 0.2 < (dan / (len(data)/3) * 4) / eatnutrients else 0) 
+        jiFailChecker = -1 if (ji / (len(data)/3) * 9) / eatnutrients < 0.15 else (1 if 0.3 < (ji / (len(data)/3) * 9) / eatnutrients else 0) 
+        print((tan / (len(data)/3) * 4) / eatnutrients )
+        print( (dan / (len(data)/3) * 4) / eatnutrients)
+        print((ji / (len(data)/3) * 9) / eatnutrients)
+        # tanFailChecker = -1 if tan < goodTan[0] / (len(data)/3) else (1 if  goodTan[1] < tan / (len(data)/3) else 0) 
+        # danFailChecker = -1 if dan < goodDan[0] / (len(data)/3) else (1 if  goodDan[1] < dan / (len(data)/3) else 0) 
+        # jiFailChecker = -1 if ji < goodJi[0] / (len(data)/3) else (1 if  goodJi[1] < ji / (len(data)/3) else 0) 
         FailCheckes = [ tanFailChecker, danFailChecker, jiFailChecker]
     else:
         FailCheckes = [ 0, 0, 0 ]
@@ -400,9 +416,12 @@ def getMealLists(user_id):
     if len(testMealList2) > 0:
         randomMeal[1] = testMealList2[0]
     else:
-        randomMeal[1][0][0] = 13
-        randomMeal[1][1][0] = '콩국수'
-        randomMeal[1][2][0] = -1
+        for i in range(len(mealKindList)):
+            if mealKindList[i] == 0:
+                randomMeal[1][0][i] = 13
+                randomMeal[1][1][i] = '콩국수'
+                randomMeal[1][2][i] = -1
+                break
         
 
     for i in randomMeal:
@@ -415,16 +434,16 @@ def getMealLists(user_id):
                 cur.execute(store_id_select_query)
                 store_id = cur.fetchall()[0][0]
 
-                img_link = get_image('images2/'+str(store_id)+'/'+i[1][j]+'/0.png')
-                resultList.append({'id': i[0][j], 'recommend_name' : i[1][j],
-                    'image' : 'data:image/png;base64,'+img_link , 'store_id': store_id})
+                # img_link = get_image('images2/'+str(store_id)+'/'+i[1][j]+'/0.png')
+                # resultList.append({'id': i[0][j], 'recommend_name' : i[1][j],
+                #     'image' : 'data:image/png;base64,'+img_link , 'store_id': store_id})
 
                 # img_link = get_image('images2/'+str(store_id)+'/'+i[1][j]+'/0.png')
                 # img_link = 'data:image/png;base64,'+img_link
 
-                # img_link = os.path.abspath('./images2/' + str(store_id) + '/' + str(i[1][j]) + '/' + '0.png')
-                # resultList.append({'id': i[0][j], 'recommend_name' : i[1][j],
-                #     'image' : img_link , 'store_id': store_id})
+                img_link = os.path.abspath('./images2/' + str(store_id) + '/' + str(i[1][j]) + '/' + '0.png')
+                resultList.append({'id': i[0][j], 'recommend_name' : i[1][j],
+                    'image' : img_link , 'store_id': store_id})
 
                 # get_image('images2/'+str(store_id)+'/'+i[1][j]+'/0.png')
                 # with open('images2/'+str(store_id)+'/'+i[1][j]+'/0.png', 'rb') as f:
