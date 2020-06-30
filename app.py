@@ -129,11 +129,10 @@ def getMealLists(user_id):
     cur.execute('select nutrient_carbohydrate, nutrient_protein, nutrient_fat, nutrients.food_id, food_name  from foods join nutrients  on foods.food_id = nutrients.food_id')
     foodList = cur.fetchall()
 
-    foodIdList = [i for i in range(len(foodList))]
+    foodIdList = [ i for i in range(len(foodList))]
     
     # cur.execute('select food_id  from nutrients where food_id is not null')
     # foodIdList = [i[0] for i in cur.fetchall()]
-
     
     # get Recipe
     # fw = open('recipe3.csv', 'r')
@@ -144,7 +143,7 @@ def getMealLists(user_id):
     cur.execute('select nutrient_carbohydrate, nutrient_protein, nutrient_fat, nutrients.recipe_id, recipe_food, recipe_image_2 from recipes join nutrients  on recipes.recipe_id = nutrients.recipe_id')
     recipeList = cur.fetchall()
 
-    recipeIdList = [ -i for i in range(len(recipeList)) ]
+    recipeIdList = [ -(i+1) for i in range(len(recipeList)) ]
 
     # cur.execute('select recipe_id from nutrients where recipe_id is not null')
     # recipeIdList =[ -i[0] for i in cur.fetchall() ]
@@ -282,7 +281,7 @@ def getMealLists(user_id):
         foodImgList = []
         for j in range(todayEatNum):
             # print(i[j])
-            if i[j] > 0:
+            if i[j] >= 0:
                 tan += foodList[i[j]][0]
                 dan += foodList[i[j]][1]
                 ji += foodList[i[j]][2]
