@@ -35,7 +35,7 @@ tb._SYMBOLIC_SCOPE.value = True
         
 config = {'user': 'wdj2-user',
             'password': 'wdj2-Fitfood', 
-            'host': 'ec2-52-72-52-75.compute-1.amazonaws.com', 
+            'host': 'ec2-34-239-220-61.compute-1.amazonaws.com', 
             'db': 'fitfood_v5'}
 conn = mysql.connector.connect(**config)
 cur = conn.cursor(buffered=True)
