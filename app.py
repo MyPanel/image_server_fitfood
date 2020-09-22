@@ -419,7 +419,7 @@ def getMealLists(user_id):
         for i in range(len(mealKindList)):
             if mealKindList[i] == 0:
                 randomMeal[1][0][i] = 13
-                randomMeal[1][1][i] = '콩국수'
+                randomMeal[1][1][i] = 'コングッス'
                 randomMeal[1][2][i] = -1
                 break
         
