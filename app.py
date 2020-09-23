@@ -357,7 +357,7 @@ def getMealLists(user_id):
 
     randomMeal = []
     resultIdList= []
-    print(RightMealList)
+    ## print(RightMealList)
     print('======================')
 
     if -1 in FailCheckes or 1 in FailCheckes:
