@@ -277,6 +277,7 @@ def getMealLists(user_id):
         cur.execute(nutrient_select_query)
         eattedNutrientInfo = cur.fetchall()[0]
         print(eattedNutrientInfo[0])
+        print(eattedNutrientInfo)
         goodTan[0] -= float(eattedNutrientInfo[0])
         goodTan[1] -= float(eattedNutrientInfo[0])
         goodDan[0] -= float(eattedNutrientInfo[1])
